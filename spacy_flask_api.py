@@ -7,12 +7,15 @@ Original file is located at
     https://colab.research.google.com/drive/1vkDe1Ok57ZP49YLiGSZXekynUxVjeZq4
 """
 
-from flask import Flask,render_template,url_for,request
+from flask import Flask,render_template,url_for,request,jsonify
 import re
 import pandas as pd
 import spacy
 from spacy import displacy
 import en_core_web_sm
+import spacy
+import scispacy
+nlp = spacy.load("en_ner_bc5cdr_md")
 #nlp = spacy.load('en_ner_bc5cdr_md')
 
 app = Flask(__name__)
@@ -27,18 +30,12 @@ def health_check():
 @app.route('/get_entities',methods=["POST"])
 def extract_entities():
   if request.method=='POST':
-    #print(request.data)
     data = request.json
     text=data['data']
-    import spacy
-    import scispacy
-    nlp = spacy.load("en_ner_bc5cdr_md")
     doc = nlp(text)
-    #print('sentences of the text')
-    #print(list(doc.sents))
-    #print('Entities')
-    print(list(doc.ents))
-    return 'success'
+    entities=doc.ents
+    entities_=[str(x) for x in entities]
+    return jsonify({'output':entities_})
 
 
 if __name__ == '__main__':
